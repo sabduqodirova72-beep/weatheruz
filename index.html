@@ -1,0 +1,465 @@
+
+<!DOCTYPE html>
+<html lang="uz">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>WeatherUZ</title>
+<style>
+*{box-sizing:border-box}
+body{
+ margin:0;padding:25px 15px;min-height:100vh;
+ font-family:Arial,sans-serif;color:white;
+ background:linear-gradient(135deg,#06152e,#102f59,#07111f)
+}
+.container{max-width:950px;margin:auto}
+header{text-align:center;margin-bottom:30px}
+header h1{font-size:38px;color:#60c8ff;margin-bottom:8px}
+header p{color:#b9d8f5}
+.search{display:flex;gap:10px;margin-bottom:20px}
+input,button{padding:15px;border-radius:12px;font-size:16px}
+input{
+ flex:1;min-width:0;background:#102541;color:white;
+ border:1px solid #34577c;outline:none
+}
+button{border:0;background:#2196f3;color:white;cursor:pointer}
+button:hover{background:#0878d1}
+#status{text-align:center;color:#b9d8f5;margin:18px 0}
+.card{
+ background:#153050e0;border:1px solid #315477;
+ border-radius:22px;padding:25px;text-align:center;
+ box-shadow:0 15px 40px #0004
+}
+#city{font-size:28px;margin:0}
+#icon{font-size:70px;margin:12px}
+#temp{font-size:62px;font-weight:bold;margin:5px}
+#description{color:#b9d8f5;font-size:17px}
+.details{
+ display:grid;grid-template-columns:repeat(2,1fr);
+ gap:12px;margin-top:25px
+}
+.detail{padding:17px;border-radius:14px;background:#203e60}
+.detail p{font-size:20px;margin:8px 0 0}
+h2{margin-top:30px}
+.forecast{
+ display:grid;grid-template-columns:repeat(5,minmax(0,1fr));gap:10px
+}
+.day-card{
+ background:#173656;border:1px solid #315477;
+ border-radius:15px;padding:15px 5px;text-align:center;
+ overflow-wrap:anywhere
+}
+.day-name{font-size:13px;color:#b9d8f5}
+.day-icon{font-size:28px;margin:12px 0}
+.high{font-weight:bold}
+.low{color:#a8c4e2;margin-top:6px;font-size:14px}
+footer{text-align:center;margin-top:30px;color:#8eaccb}
+@media(max-width:600px){
+ .forecast{grid-template-columns:repeat(2,minmax(0,1fr))}
+ .search{flex-direction:column}
+ header h1{font-size:31px}
+ #temp{font-size:52px}
+}
+
+#themeButton {
+  display: block;
+  margin: 15px auto;
+  padding: 12px 20px;
+  border-radius: 12px;
+  background: #ffffff;
+  color: #102f59;
+  font-weight: bold;
+  cursor: pointer;
+}
+
+body.light-mode {
+  background: linear-gradient(135deg, #d9f0ff, #ffffff, #b8ddff);
+  color: #102f59;
+}
+
+body.light-mode .card,
+body.light-mode .day-card {
+  background: #ffffff;
+  color: #102f59;
+  border-color: #a6cce8;
+}
+
+body.light-mode .detail {
+  background: #e3f3ff;
+}
+
+body.light-mode #description,
+body.light-mode .day-name,
+body.light-mode .low {
+  color: #426581;
+}
+
+#icon {
+  font-size: 85px;
+  animation: floatIcon 2s ease-in-out infinite;
+  filter: drop-shadow(0 0 12px #60c8ff);
+}
+
+@keyframes floatIcon {
+  0%, 100% {
+    transform: translateY(0);
+  }
+  50% {
+    transform: translateY(-10px);
+  }
+}
+
+#weatherEffects {
+  position: fixed;
+  inset: 0;
+  pointer-events: none;
+  overflow: hidden;
+  z-index: 10;
+}
+
+.weather-particle {
+  position: absolute;
+  top: -30px;
+  animation: weatherFall linear infinite;
+}
+
+.rain-drop {
+  width: 2px;
+  height: 22px;
+  background: #a8dcff;
+  opacity: 0.7;
+}
+
+.snow-flake {
+  color: white;
+  font-size: 18px;
+  opacity: 0.9;
+}
+
+@keyframes weatherFall {
+  to {
+    transform: translateY(110vh) rotate(180deg);
+  }
+}
+
+.details {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 16px;
+  margin-top: 25px;
+}
+
+.detail {
+  padding: 22px 16px;
+  border-radius: 20px;
+  background: linear-gradient(145deg, #20476d, #112944);
+  border: 1px solid #4b7398;
+  box-shadow: 0 8px 24px #0003;
+  text-align: center;
+  transition: transform 0.25s, box-shadow 0.25s;
+}
+
+.detail:hover {
+  transform: translateY(-5px);
+  box-shadow: 0 12px 28px #0005;
+}
+
+.detail p {
+  font-size: 25px;
+  font-weight: bold;
+  margin: 12px 0 0;
+  color: #72d0ff;
+}
+
+body.light-mode .detail {
+  background: linear-gradient(145deg, #ffffff, #e2f3ff);
+  border-color: #b5d9f0;
+  box-shadow: 0 8px 24px #527da322;
+}
+
+body.light-mode .detail p {
+  color: #0878c9;
+}
+
+@media (max-width: 400px) {
+  .details {
+    gap: 10px;
+  }
+
+  .detail {
+    padding: 16px 8px;
+  }
+
+  .detail p {
+    font-size: 21px;
+  }
+}
+
+.detail-icon {
+  font-size: 38px;
+  margin-bottom: 12px;
+  display: inline-block;
+  animation: iconFloat 2.5s ease-in-out infinite;
+  filter: drop-shadow(0 0 8px #60c8ff66);
+}
+
+.detail:nth-child(2) .detail-icon {
+  animation-delay: 0.4s;
+}
+
+@keyframes iconFloat {
+  0%, 100% {
+    transform: translateY(0) scale(1);
+  }
+  50% {
+    transform: translateY(-5px) scale(1.08);
+  }
+}
+
+.detail {
+  position: relative;
+  overflow: hidden;
+}
+
+.detail::before {
+  content: "";
+  position: absolute;
+  top: -50%;
+  left: -70%;
+  width: 45%;
+  height: 200%;
+  background: linear-gradient(
+    90deg,
+    transparent,
+    #ffffff12,
+    transparent
+  );
+  transform: rotate(25deg);
+  animation: cardShine 5s ease-in-out infinite;
+  pointer-events: none;
+}
+
+@keyframes cardShine {
+  0%, 65% {
+    left: -70%;
+  }
+  100% {
+    left: 140%;
+  }
+}
+
+</style>
+</head>
+<body>
+<div class="container">
+<header>
+<h1>🌤️ WeatherUZ</h1>
+
+<button id="themeButton" type="button">🌙 Tungi rejim</button>
+
+
+<p>O‘zbekiston ob-havosi — real vaqt rejimida</p>
+</header>
+
+<form class="search" id="searchForm">
+<input id="cityInput" placeholder="Shahar nomini yozing..." required>
+<button type="submit">🔍 Qidirish</button>
+</form>
+
+<div id="status">Ob-havo yuklanmoqda...</div>
+
+<section class="card">
+<h2 id="city">Samarqand</h2>
+<div id="icon">🌤️</div>
+<div id="temp"><div class="detail-icon">🌡️</div>--°C</div>
+<div id="description">Ob-havo holati</div>
+<div class="details">
+
+<div class="detail">
+  <div class="detail-icon">💧</div>
+  <div>Namlik</div>
+  <p id="humidity">--%</p>
+</div>
+
+<div class="detail">
+  <div class="detail-icon">💨</div>
+  <div>Shamol</div>
+  <p id="wind">-- km/soat</p>
+</div>
+</div>
+</section>
+
+<h2>📅 5 kunlik prognoz</h2>
+<div class="forecast" id="forecast"></div>
+<footer>© 2026 WeatherUZ</footer>
+</div>
+
+<script>
+const knownCities = {
+"samarqand":[39.6542,66.9597,"Samarqand"],
+"samarkand":[39.6542,66.9597,"Samarqand"],
+"toshkent":[41.2995,69.2401,"Toshkent"],
+"tashkent":[41.2995,69.2401,"Toshkent"],
+"andijon":[40.7821,72.3442,"Andijon"],
+"buxoro":[39.7747,64.4286,"Buxoro"],
+"bukhara":[39.7747,64.4286,"Buxoro"],
+"fargona":[40.3864,71.7864,"Farg‘ona"],
+"namangan":[40.9983,71.6726,"Namangan"],
+"jizzax":[40.1158,67.8422,"Jizzax"],
+"navoiy":[40.0844,65.3792,"Navoiy"],
+"qarshi":[38.8606,65.7891,"Qarshi"],
+"nukus":[42.4531,59.6103,"Nukus"],
+"urganch":[41.5500,60.6333,"Urganch"],
+"termiz":[37.2242,67.2783,"Termiz"],
+"guliston":[40.4897,68.7842,"Guliston"],"qarakalpogiston":[42.4531,59.6103,"Qoraqalpog‘iston"],
+"xorazm":[41.55,60.6333,"Xorazm"],
+"sirdaryo":[40.4897,68.7842,"Sirdaryo"],
+"qashqadaryo":[38.86,65.7891,"Qashqadaryo"],
+"surxondaryo":[37.2242,67.2783,"Surxondaryo"]
+};
+
+function weatherInfo(code){
+ if(code===0)return ["☀️","Ochiq osmon"];
+ if(code<=2)return ["🌤️","Biroz bulutli"];
+ if(code===3)return ["☁️","Bulutli"];
+ if(code<=48)return ["🌫️","Tuman"];
+ if(code<=57)return ["🌦️","Mayda yomg‘ir"];
+ if(code<=67)return ["🌧️","Yomg‘ir"];
+ if(code<=77)return ["❄️","Qor"];
+ if(code<=82)return ["🌧️","Jala"];
+ if(code<=86)return ["🌨️","Qor yog‘ishi"];
+ if(code<=99)return ["⛈️","Momaqaldiroq"];
+ return ["🌡️","Ob-havo"];
+}
+
+function normalize(text){
+ return text.toLowerCase().trim()
+ .replace(/ʻ|ʼ|‘|’|`/g,"")
+ .replace(/o‘/g,"o").replace(/g‘/g,"g")
+ .replace(/\s+/g," ");
+}
+
+async function getWeather(){
+ const input=document.getElementById("cityInput");
+ const key=normalize(input.value);
+ const status=document.getElementById("status");
+ const city=knownCities[key];
+
+ if(!city){
+  status.textContent="Shahar topilmadi. Ro‘yxatdagi shahar nomini kiriting.";
+  return;
+ }
+
+ status.textContent="Ob-havo yuklanmoqda...";
+ try{
+  const url="https://api.open-meteo.com/v1/forecast?latitude="+city[0]+
+  "&longitude="+city[1]+
+  "&current=temperature_2m,relative_humidity_2m,apparent_temperature,is_day,weather_code,wind_speed_10m"+
+  "&daily=weather_code,temperature_2m_max,temperature_2m_min"+
+  "&forecast_days=5&timezone=auto";
+
+  const response=await fetch(url);
+  if(!response.ok)throw new Error("API");
+  const data=await response.json();
+  const c=data.current;
+console.log("API vaqti:", c.time);
+console.log("Hozirgi kompyuter vaqti:", new Date().toString());
+  const w=weatherInfo(c.weather_code);
+showWeatherEffects(c.weather_code);
+const code = c.weather_code;
+
+if (code === 0 || code === 1 || code === 2) {
+  document.body.style.background =
+    "linear-gradient(135deg, #f6b73c, #fceabb, #5bbcff)";
+} else if (code >= 71 && code <= 86) {
+  document.body.style.background =
+    "linear-gradient(135deg, #dceaf7, #a9c5df, #6d8eaf)";
+} else if (code >= 51 && code <= 67 || code >= 80 && code <= 82 || code >= 95) {
+  document.body.style.background =
+    "linear-gradient(135deg, #172b4d, #315b82, #14213d)";
+} else {
+  document.body.style.background =
+    "linear-gradient(135deg, #06152e, #527a9e, #20344f)";
+}
+
+  document.getElementById("city").textContent=city[2];
+  document.getElementById("icon").textContent=
+   c.is_day?w[0]:(c.weather_code===0?"🌙":w[0]);
+  document.getElementById("temp").textContent=Math.round(c.temperature_2m)+"°C";
+  document.getElementById("description").textContent=
+   w[1]+" · His qilinishi "+Math.round(c.apparent_temperature)+"°C";
+  document.getElementById("humidity").textContent=c.relative_humidity_2m+"%";
+  document.getElementById("wind").textContent=c.wind_speed_10m+" km/soat";
+
+  const days=["Yakshanba","Dushanba","Seshanba","Chorshanba",
+  "Payshanba","Juma","Shanba"];
+
+  document.getElementById("forecast").innerHTML=data.daily.time.map((date,i)=>{
+   const info=weatherInfo(data.daily.weather_code[i]);
+   const name=i===0?"Bugun":days[new Date(date+"T12:00:00").getDay()];
+   return '<div class="day-card"><div class="day-name">'+name+
+   '</div><div class="day-icon">'+info[0]+'</div><div>'+info[1]+
+   '</div><p class="high">'+Math.round(data.daily.temperature_2m_max[i])+
+   '°C</p><div class="low">'+Math.round(data.daily.temperature_2m_min[i])+
+   '°C</div></div>';
+  }).join("");
+
+ status.textContent="Ma’lumot vaqti: "+c.time.replace("T"," ")+" (mahalliy vaqt)";
+ }catch(error){
+  status.textContent="Internetni tekshiring va qayta urinib ko‘ring.";
+ }
+}
+
+document.getElementById("searchForm").addEventListener("submit",function(e){
+ e.preventDefault();
+ getWeather();
+});
+
+getWeather();
+
+document.getElementById("themeButton").addEventListener("click", function () {
+  document.body.classList.toggle("light-mode");
+
+  if (document.body.classList.contains("light-mode")) {
+    this.textContent = "🌙 Tungi rejim";
+  } else {
+    this.textContent = "☀️ Kunduzgi rejim";
+  }
+});
+
+const effects = document.createElement("div");
+effects.id = "weatherEffects";
+document.body.appendChild(effects);
+
+function showWeatherEffects(code) {
+  effects.innerHTML = "";
+
+  let type = "";
+
+  if (code >= 51 && code <= 67 || code >= 80 && code <= 82) {
+    type = "rain-drop";
+  } else if (code >= 71 && code <= 77 || code >= 85 && code <= 86) {
+    type = "snow-flake";
+  } else {
+    return;
+  }
+
+  for (let i = 0; i < 45; i++) {
+    const particle = document.createElement("span");
+    particle.className = "weather-particle " + type;
+    particle.style.left = Math.random() * 100 + "%";
+    particle.style.animationDuration = (1.5 + Math.random() * 3) + "s";
+    particle.style.animationDelay = (-Math.random() * 5) + "s";
+
+    if (type === "snow-flake") {
+      particle.textContent = "❄";
+    }
+
+    effects.appendChild(particle);
+  }
+}
+
+
+</script>
+</body>
+</html>
